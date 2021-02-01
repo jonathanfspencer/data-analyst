@@ -6,45 +6,42 @@ Week 1 Assignment
 
 import pandas
 import numpy
+import statsmodels.formula.api as smf
+import statsmodels.stats.multicomp as multi 
 
-data = pandas.read_csv('gapminder.csv', low_memory=False)
+#Set PANDAS to show all columns in DataFrame
+pandas.set_option('display.max_columns', None)
+#Set PANDAS to show all rows in DataFrame
+pandas.set_option('display.max_rows', None)
 
-print ('Number of observations: ', len(data)) #number of observations (rows)
-print ('Number of variables: ', len(data.columns)) # number of variables (columns)
+# bug fix for display formats to avoid run time errors
+pandas.set_option('display.float_format', lambda x:'%f'%x)
 
-print()
-print()
-print('2010 Gross Domestic Product per capita in constant 2000 US$. The inflation but not the differences in the cost of living between countries has been taken into account.')
-print('Counts for Income Per Person: incomeperperson')
-incomeperpersoncount = data['incomeperperson'].value_counts(sort=False)
-print (incomeperpersoncount)
-print('Percentages for Income Per Person: incomeperperson')
-incomeperpersonpercent = data['incomeperperson'].value_counts(sort=False, normalize=True)
-print (incomeperpersonpercent)
-print()
+data = pandas.read_csv('dat/gapminder.csv', low_memory=False)
+data = data.replace(r'^\s*$', numpy.NaN, regex=True)
 
-print('2006 cumulative CO2 emission (metric tons), Total amount of CO2 emission in metric tons since 1751.')
-print('Counts for CO2 Emissions Per Person: co2emissions')
-co2emissionscount = data['co2emissions'].value_counts(sort=False)
-print (co2emissionscount)
-print('Percentages for CO2 Emissions Per Person: co2emissions')
-co2emissionspercent = data['co2emissions'].value_counts(sort=False, normalize=True)
-print (co2emissionspercent)
-print()
+data['incomeperperson'] = pandas.to_numeric(data['incomeperperson'])
+data['co2emissions'] = pandas.to_numeric(data['co2emissions'])
+data['femaleemployrate'] = pandas.to_numeric(data['femaleemployrate'])
+data['polityscore'] = pandas.to_numeric(data['polityscore'])
 
-print('2007 female employees age 15+ (% of population) Percentage of female population, age above 15, that has been employed during the given year.')
-print('Counts for Female Employment Rate: femaleemployrate')
-femaleemployratecount = data['femaleemployrate'].value_counts(sort=False)
-print (femaleemployratecount)
-print('Percentages for Female Employment Rate: femaleemployrate')
-femaleemployratepercent = data['femaleemployrate'].value_counts(sort=False, normalize=True)
-print (femaleemployratepercent)
-print()
+# create a categorical variable for whether most working age women are employed
+def mostfememployed (row):
+   if row['femaleemployrate'] > 50 :
+      return 1
+   else :
+      return 0
+         
+data['mostfememployed'] = data.apply (lambda row: mostfememployed (row),axis=1)
+# set new variable type to categorical
+data['mostfememployed'] = data['mostfememployed'].astype('category')
 
-print('2009 Democracy score (Polity) Overall polity score from the Polity IV dataset, calculated by subtracting an autocracy score from a democracy score. The summary measure of a country''s democratic and free nature. -10 is the lowest value, 10 the highest.')
-print('Counts for Polity Score: polityscore')
-polityscorecount = data['polityscore'].value_counts(sort=False)
-print (polityscorecount)
-print('Percentages for Polity Score: polityscore')
-polityscorepercent = data['polityscore'].value_counts(sort=False, normalize=True)
-print (polityscorepercent)
+#subset data to remove rows where any of the variables contain missing data
+sub1=data.dropna(how='any', subset=['incomeperperson', 'co2emissions', 'femaleemployrate', 'polityscore', 'mostfememployed'])
+
+# H0: There is no correlation between whether most women in a country are employed and the amount of CO2 released
+# H1: There is a correlation between whether most women in a country are employed and the amount of CO2 released
+# using ols function for calculating the F-statistic and associated p value
+model1 = smf.ols(formula='co2emissions ~ C(mostfememployed)', data=sub1)
+results1 = model1.fit()
+print (results1.summary())
