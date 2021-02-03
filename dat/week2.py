@@ -51,4 +51,29 @@ data['howfememployed'] = data['howfememployed'].astype('category')
 
 
 #subset data to remove rows where any of the variables contain missing data
-sub1=data.dropna(how='any', subset=['femaleemployrate', 'polityscore', 'howfememployed'])
+sub1=data.dropna(how='any', subset=['polityscore', 'howfememployed'])
+
+# Run a Chi-Square Test of Independence.
+
+# contingency table of observed counts
+ct1=pandas.crosstab(sub1['howfememployed'], sub1['polityscore'])
+print (ct1)
+
+# column percentages
+colsum=ct1.sum(axis=0)
+colpct=ct1/colsum
+print(colpct)
+
+# chi-square
+print ('chi-square value, p value, expected counts')
+cs1= scipy.stats.chi2_contingency(ct1)
+print (cs1)
+
+
+# You will need to analyze and interpret post hoc paired comparisons in instances where your 
+# original statistical test was significant, and you were examining more than two groups 
+# (i.e. more than two levels of a categorical, explanatory variable). 
+
+# Note: although it is possible to run large Chi-Square tables (e.g. 5 x 5, 4 x 6, etc.), 
+# the test is really only interpretable when your response variable has only 2 levels 
+# (see Graphing decisions flow chart in Bivariate Graphing chapter).
