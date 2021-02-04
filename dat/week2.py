@@ -47,7 +47,8 @@ def howfememployed (row):
          
 data['howfememployed'] = data.apply (lambda row: howfememployed (row),axis=1)
 # set new variable type to categorical
-data['howfememployed'] = data['howfememployed'].astype('category')
+data['howfememployed'] = pandas.to_numeric(data['howfememployed'])
+data['polityscore'] = data['polityscore'].astype('category')
 
 
 #subset data to remove rows where any of the variables contain missing data
@@ -69,6 +70,14 @@ print ('chi-square value, p value, expected counts')
 cs1= scipy.stats.chi2_contingency(ct1)
 print (cs1)
 
+# graph rate of female employment within each smoking polity score category
+polfemfig, polfemax = plt.subplots()
+seaborn.catplot(x="polityscore", y="howfememployed", data=sub1, kind="bar", ci=None)
+plt.xlabel('Polity Score (-10 to 10)')
+plt.ylabel('Rate of Female Employment (0 to 3)')
+plt.title('Rate of Female Employment and Polity Score')
+plt.tight_layout()
+plt.savefig('dat/polfemfig.png')
 
 # You will need to analyze and interpret post hoc paired comparisons in instances where your 
 # original statistical test was significant, and you were examining more than two groups 
