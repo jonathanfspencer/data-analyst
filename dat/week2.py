@@ -23,8 +23,6 @@ pandas.set_option('display.float_format', lambda x:'%f'%x)
 data = pandas.read_csv('dat/gapminder.csv', low_memory=False)
 data = data.replace(r'^\s*$', numpy.NaN, regex=True)
 
-# data['incomeperperson'] = pandas.to_numeric(data['incomeperperson'])
-# data['co2emissions'] = pandas.to_numeric(data['co2emissions'])
 data['femaleemployrate'] = pandas.to_numeric(data['femaleemployrate'])
 data['polityscore'] = pandas.to_numeric(data['polityscore'])
 
