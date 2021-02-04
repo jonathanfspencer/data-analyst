@@ -82,8 +82,40 @@ plt.savefig('dat/fempolfig.png')
 # original statistical test was significant, and you were examining more than two groups 
 # (i.e. more than two levels of a categorical, explanatory variable). 
 
+# With 4 categories, we need 6 comparisons for our Bonferonni correction
+# Our FWER p-value is 0.05/6 = 0.008333..
 
+# I don't want to copy and paste a bunch of code, so I'm defining a method 
+# to do my adhoc comparisons
+def adhoc(comparison):
+   print()
+   sub2 = sub1.copy()
+   compname='COMP'+str(comparison[0])+'v'+str(comparison[1])
+   print('Pairwise comparison for '+compname)
+   recode1 = {comparison[0]: comparison[0], comparison[1]: comparison[1]}
+   sub2[compname]= sub2['howfememployed'].map(recode1)
 
-# Note: although it is possible to run large Chi-Square tables (e.g. 5 x 5, 4 x 6, etc.), 
-# the test is really only interpretable when your response variable has only 2 levels 
-# (see Graphing decisions flow chart in Bivariate Graphing chapter).
+   # contingency table of observed counts
+   ct=pandas.crosstab(sub2['polityscore'], sub2[compname])
+   print (ct)
+
+   # column percentages
+   colsum=ct.sum(axis=0)
+   colpct=ct/colsum
+   print(colpct)
+
+   print ('chi-square value, p value, expected counts')
+   cs = scipy.stats.chi2_contingency(ct)
+   print (cs)
+   # check to see if p is less than 0.00833333...
+   if cs[1] < (0.05/6.0):
+      print('There IS a significant difference for '+compname)
+   else:
+      print('There is NO significant difference for '+compname)
+# this is the end of the adhoc() function
+
+# here's a list of all the possible comparisons
+comparisons = [[1,2],[1,3],[1,4],[2,3],[2,4],[3,4]]
+# do all the comparisons for me
+for comparison in comparisons:
+   adhoc(comparison)
