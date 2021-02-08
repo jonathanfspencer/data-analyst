@@ -32,11 +32,11 @@ data['incomeperperson'] = pandas.to_numeric(data['incomeperperson'])
 # moderator: incomeperperson
 
 #subset data to remove rows where any of the variables contain missing data
-clean_data=data.dropna(how='any', subset=['urbanrate', 'oilperperson', 'oilperpoerson'])
+data=data.dropna()
 
 # Make a scatter plot to visualize the relationship
 fig1, scat1 = plt.subplots()
-scat1 = seaborn.regplot(x="urbanrate", y="oilperperson", fit_reg=True, data=clean_data, ax=scat1)
+scat1 = seaborn.regplot(x="urbanrate", y="oilperperson", fit_reg=True, data=data, ax=scat1)
 scat1.set_xlabel('2008 Urban Population Rate')
 scat1.set_ylabel('2010 Oil Consumption Per Capita')
 scat1.set_title('Urbanization Rate and Oil Consumption')
@@ -44,41 +44,67 @@ fig1.savefig('dat/urbanoil.png')
 
 # Perform a Pearson Correlation Coefficient Test
 print ('Association between urban population rate and oil consumption')
-print (scipy.stats.pearsonr(clean_data['urbanrate'], clean_data['oilperperson']))
+urbanoilp = scipy.stats.pearsonr(data['urbanrate'], data['oilperperson'])
+print(urbanoilp)
+if urbanoilp[1] < 0.05:
+    print('This relationship IS statistically significant')
+else:
+    print('This relationship is NOT statistically significant')
+print ()
+
 print()
 
 # See how incomeperperson works as a moderator
-# Using International Poverty Line of $1.90/day based on http://documents1.worldbank.org/curated/en/837051468184454513/pdf/Estimating-international-poverty-lines-from-comparable-national-thresholds.pdf
-povertyline = 1.9 * 365
+# subset data to those countries at or below USD$2000 
+def incomegrp (row):
+   if row['incomeperperson'] < 2000:
+      return 1
+   else:
+      return 2
+   
+data['incomegrp'] = data.apply (lambda row: incomegrp (row),axis=1)
 
-# subset data to those countries at or below International Poverty Line
-sub2=clean_data(clean_data['incomeperperson'] <= povertyline)
+chk1 = data['incomegrp'].value_counts(sort=False, dropna=False)
+print(chk1)
+# create a subframe for those countries below USD$2000
+sub2=data[(data['incomegrp'] == 1)]
+# create a subframe for those countries above USD$2000
+sub3=data[(data['incomegrp'] == 2)]
 
+# Repeat for those countries below USD$2000
 # Make a scatter plot to visualize the relationship
 fig2, scat2 = plt.subplots()
 scat2 = seaborn.regplot(x="urbanrate", y="oilperperson", fit_reg=True, data=sub2, ax=scat2)
 scat2.set_xlabel('2008 Urban Population Rate')
 scat2.set_ylabel('2010 Oil Consumption Per Capita')
-scat2.set_title('Urbanization Rate and Oil Consumption Below IPL')
+scat2.set_title('Urbanization Rate and Oil Consumption Below USD$2000')
 fig2.savefig('dat/urbanoilbelow.png')
 
 # Perform a Pearson Correlation Coefficient Test
-print ('Association between urban population rate and oil consumption below IPL')
-print (scipy.stats.pearsonr(sub2['urbanrate'], sub2['oilperperson']))
-print()
+print ('Association between urban population rate and oil consumption below USD$2000')
+urbanoilbelowp = scipy.stats.pearsonr(sub2['urbanrate'], sub2['oilperperson'])
+print(urbanoilbelowp)
+if urbanoilbelowp[1] < 0.05:
+    print('This relationship IS statistically significant')
+else:
+    print('This relationship is NOT statistically significant')
+print ()
 
-# subset data to those countries above International Poverty Line
-sub3=clean_data(clean_data['incomeperperson'] <= povertyline)
-
+# Repeat for those countries above USD$2000
 # Make a scatter plot to visualize the relationship
 fig3, scat3 = plt.subplots()
 scat3 = seaborn.regplot(x="urbanrate", y="oilperperson", fit_reg=True, data=sub3, ax=scat3)
 scat3.set_xlabel('2008 Urban Population Rate')
 scat3.set_ylabel('2010 Oil Consumption Per Capita')
-scat3.set_title('Urbanization Rate and Oil Consumption Above IPL')
+scat3.set_title('Urbanization Rate and Oil Consumption Above USD$2000')
 fig3.savefig('dat/urbanoilabove.png')
 
 # Perform a Pearson Correlation Coefficient Test
-print ('Association between urban population rate and oil consumption above IPL')
-print (scipy.stats.pearsonr(sub3['urbanrate'], sub3['oilperperson']))
-print()
+print ('Association between urban population rate and oil consumption above USD$2000')
+urbanoilabovep = scipy.stats.pearsonr(sub3['urbanrate'], sub3['oilperperson'])
+print(urbanoilabovep)
+if urbanoilabovep[1] < 0.05:
+    print('This relationship IS statistically significant')
+else:
+    print('This relationship is NOT statistically significant')
+print ()
