@@ -25,8 +25,8 @@ data['urbanrate'] = pandas.to_numeric(data['urbanrate'])
 data['oilperperson'] = pandas.to_numeric(data['oilperperson'])
 data['incomeperperson'] = pandas.to_numeric(data['incomeperperson'])
 
-# H0: There is no significant relantionship between urban rate and oil use per person
-# H1: # H0: There is a significant relantionship between urban rate and oil use per person
+# H0: There is no significant relationship between urban rate and oil use per person
+# H1: # H0: There is a significant relationship between urban rate and oil use per person
 # explanatory: urbanrate
 # response: oilperperson
 # moderator: incomeperperson
@@ -52,8 +52,6 @@ else:
     print('This relationship is NOT statistically significant')
 print ()
 
-print()
-
 # See how incomeperperson works as a moderator
 # subset data to those countries at or below USD$2000 
 def incomegrp (row):
@@ -63,7 +61,7 @@ def incomegrp (row):
       return 2
    
 data['incomegrp'] = data.apply (lambda row: incomegrp (row),axis=1)
-
+print('Row counts above and below USD$2000:')
 chk1 = data['incomegrp'].value_counts(sort=False, dropna=False)
 print(chk1)
 # create a subframe for those countries below USD$2000
