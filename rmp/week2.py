@@ -82,7 +82,7 @@ print('Urban Low and High Rate percentages:')
 print(urbhilowpercent)
 print()
 
-# Make a scatter plot to visualize the relationship
+# Make a box plot to visualize the relationship
 fig1, box1 = plt.subplots()
 box1 = seaborn.boxplot(x="urbhilow", y="incomeperperson", data=data, ax=box1)
 box1.set_xlabel('2008 Urban Population Rate (0=Low, 1=High)')
