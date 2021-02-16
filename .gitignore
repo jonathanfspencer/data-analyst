@@ -2,3 +2,5 @@
 /.vscode/*
 .vscode/settings.json
 .gitignore
+.vscode/settings.json
+dat/.DS_Store
