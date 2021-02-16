@@ -56,10 +56,9 @@ data['urbanrate'] = pandas.to_numeric(data['urbanrate'])
 data['incomeperperson'] = pandas.to_numeric(data['incomeperperson'])
 
 # H0: There is no significant relationship between urban rate and income per person
-# H1: # H0: There is a significant relationship between urban rate and income per person
+# H1: There is a significant relationship between urban rate and income per person
 # explanatory: urbanrate
 # response: incomeperperson
-# moderator: incomeperperson
 
 #subset data to remove rows where any of the variables contain missing data
 data=data.dropna()
