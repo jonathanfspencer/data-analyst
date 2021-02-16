@@ -83,11 +83,11 @@ print(urbhilowpercent)
 print()
 
 # Make a scatter plot to visualize the relationship
-fig1, bar1 = plt.subplots()
-bar1 = seaborn.barplot(x="urbhilow", y="incomeperperson", data=data, ax=bar1)
-bar1.set_xlabel('2008 Urban Population Rate (0=Low, 1=High)')
-bar1.set_ylabel('2000 Income Per Capita in $USD')
-bar1.set_title('Urbanization Rate and Income Per Person')
+fig1, box1 = plt.subplots()
+box1 = seaborn.boxplot(x="urbhilow", y="incomeperperson", data=data, ax=box1)
+box1.set_xlabel('2008 Urban Population Rate (0=Low, 1=High)')
+box1.set_ylabel('2000 Income Per Capita in $USD')
+box1.set_title('Urbanization Rate and Income Per Person')
 fig1.savefig('rmp/urbanincome.png')
 
 # Perform an OLS Regression
