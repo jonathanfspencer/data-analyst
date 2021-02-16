@@ -39,6 +39,7 @@ import statsmodels.api
 import statsmodels.formula.api as smf
 import seaborn
 import matplotlib.pyplot as plt
+import scipy
 
 #Set PANDAS to show all columns in DataFrame
 pandas.set_option('display.max_columns', None)
@@ -94,3 +95,13 @@ fig1.savefig('rmp/urbanincome.png')
 print ('Association between urban population rate and income per person')
 urbincomereg = smf.ols('incomeperperson ~ C(urbhilow)', data=data).fit()
 print(urbincomereg.summary())
+
+# Perform a Pearson Correlation Coefficient Test
+print ('Pearson Correlation for association between urban population rate and income per person')
+urbincom = scipy.stats.pearsonr(data['urbhilow'], data['incomeperperson'])
+print(urbincom)
+if urbincom[1] < 0.05:
+    print('This relationship IS statistically significant')
+else:
+    print('This relationship is NOT statistically significant')
+print ()
