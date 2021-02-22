@@ -102,6 +102,21 @@ data['incomeperperson_c'] = (data['incomeperperson'] - data['incomeperperson'].m
 data['employrate_c'] = (data['employrate'] - data['employrate'].mean())
 data['polityscore_c'] = (data['polityscore'] - data['polityscore'].mean())
 
-# do a linear regression
+# do a linear regression analysis
+print('Linear Regression for female employment rate and urbanization rate:')
 reg1 = smf.ols('femaleemployrate ~ urbanrate_c', data=data).fit()
 print(reg1.summary())
+print()
+
+
+# do a multiple regression with femaleemployrate and centered incomeperperson
+print('Multiple regression with urbanrate and incomeperperson:')
+reg2 = smf.ols('femaleemployrate ~ urbanrate_c + incomeperperson_c', data=data).fit()
+print(reg2.summary())
+print()
+
+# do a polynomial regression analysis
+print('Polynomial Regression for female employment rate and urbanization rate:')
+reg3 = smf.ols('femaleemployrate ~ urbanrate_c + I(urbanrate_c**2) + incomeperperson_c', data=data).fit()
+print(reg3.summary())
+print()
