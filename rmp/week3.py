@@ -77,5 +77,31 @@ data['employrate'] = pandas.to_numeric(data['employrate'])
 data['polityscore'] = pandas.to_numeric(data['polityscore'])
 
 #subset data to remove rows where any of the variables contain missing data
-data=data.dropna()
+data=data[['urbanrate','femaleemployrate','incomeperperson','employrate','polityscore']].dropna()
 
+# scatterplot for urban rate and female employment
+urbfemfiglinear, urbfemaxlinear = plt.subplots()
+urbfemaxlinear = seaborn.regplot(x="urbanrate", y="femaleemployrate", scatter=True, data=data, ax=urbfemaxlinear)
+urbfemaxlinear.set_xlabel('Urbanization Rate')
+urbfemaxlinear.set_ylabel('Female Employment Rate')
+urbfemaxlinear.set_title('Urbanization Rate and Female Employment Rate (First Order)')
+urbfemfiglinear.savefig('rmp/urbfemfiglinear.png')
+
+# second order polynomial fit
+urbfemfigsecond, urbfemaxsecond = plt.subplots()
+urbfemaxsecond = seaborn.regplot(x="urbanrate", y="femaleemployrate", scatter=True, data=data, order=2, ax=urbfemaxsecond)
+urbfemaxsecond.set_xlabel('Urbanization Rate')
+urbfemaxsecond.set_ylabel('Female Employment Rate')
+urbfemaxsecond.set_title('Urbanization Rate and Female Employment Rate (Second Order)')
+urbfemfigsecond.savefig('rmp/urbfemfigsecond.png')
+
+# center the variables
+data['urbanrate_c'] = (data['urbanrate'] - data['urbanrate'].mean())
+data['femaleemployrate_c'] = (data['femaleemployrate'] - data['femaleemployrate'].mean())
+data['incomeperperson_c'] = (data['incomeperperson'] - data['incomeperperson'].mean())
+data['employrate_c'] = (data['employrate'] - data['employrate'].mean())
+data['polityscore_c'] = (data['polityscore'] - data['polityscore'].mean())
+
+# do a linear regression
+reg1 = smf.ols('femaleemployrate ~ urbanrate_c', data=data).fit()
+print(reg1.summary())
