@@ -44,7 +44,7 @@ What to Submit: Submit the URL for your blog entry. The blog entry should includ
 
 import numpy
 import pandas
-import statsmodels.api
+import statsmodels.api as sm
 import statsmodels.formula.api as smf
 import seaborn
 import matplotlib.pyplot as plt
@@ -117,6 +117,26 @@ print()
 
 # do a polynomial regression analysis
 print('Polynomial Regression for female employment rate and urbanization rate:')
-reg3 = smf.ols('femaleemployrate ~ urbanrate_c + I(urbanrate_c**2) + incomeperperson_c', data=data).fit()
+reg3 = smf.ols('femaleemployrate ~ urbanrate_c + I(urbanrate_c**2)', data=data).fit()
 print(reg3.summary())
 print()
+
+# do a polynomial regression analysis adding income per person
+print('Polynomial Regression for female employment rate and urbanization rate with income per person:')
+reg4 = smf.ols('femaleemployrate ~ urbanrate_c + I(urbanrate_c**2) + incomeperperson_c', data=data).fit()
+print(reg4.summary())
+print()
+
+# do a Q-Q plot
+qqfig, qqax = plt.subplots()
+qqfig = sm.qqplot(reg4.resid, line='r')
+qqfig.savefig('rmp/qqfig.png')
+
+# plot the residuals
+residuals = pandas.DataFrame(reg4.resid_pearson)
+residualsfig, residualsax = plt.subplots()
+plt.plot(residuals, 'o', ls='None')
+residualline = plt.axhline(y=0, color='r')
+residualsax.set_ylabel('Standardized Residual')
+residualsax.set_xlabel('Observation Number')
+residualsfig.savefig('rmp/residuals.png')
