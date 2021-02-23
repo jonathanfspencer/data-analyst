@@ -140,3 +140,7 @@ residualline = plt.axhline(y=0, color='r')
 residualsax.set_ylabel('Standardized Residual')
 residualsax.set_xlabel('Observation Number')
 residualsfig.savefig('rmp/residuals.png')
+
+# do a leverage plot
+levfig = sm.graphics.influence_plot(reg4, size=8)
+levfig.savefig('rmp/levfig.png')
