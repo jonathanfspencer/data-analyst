@@ -70,86 +70,38 @@ pandas.set_option('display.float_format', lambda x:'%f'%x)
 data = pandas.read_csv('dat/gapminder.csv', low_memory=False)
 data = data.replace(r'^\s*$', numpy.NaN, regex=True)
 
-# For Week 3, let's look at the relationship between urban rate (explanatory) and female employment(response).
-# Let's also check whether income per person, employment rate, and polity score are confounding variables.
+# For Week 4, let's look at the relationship between urban rate (explanatory) and polity score (response).
+# Let's also check whether income per person and employment rate are confounding variables.
 
-# H0: There is no significant relationship between urban rate and female employment
-# H1: There is a significant relationship between urban rate and female employment
+# H0: There is no significant relationship between urban rate and polity score
+# H1: There is a significant relationship between urban rate and polity score
 # explanatory: urbanrate
-# response: femaleemployrate
-# confounders:  incomeperperson, employrate, polityscore
+# response: polity score
+# confounders:  incomeperperson and employrate
 
 data['urbanrate'] = pandas.to_numeric(data['urbanrate'])
-data['femaleemployrate'] = pandas.to_numeric(data['femaleemployrate'])
+data['polityscore'] = pandas.to_numeric(data['polityscore'])
 data['incomeperperson'] = pandas.to_numeric(data['incomeperperson'])
 data['employrate'] = pandas.to_numeric(data['employrate'])
-data['polityscore'] = pandas.to_numeric(data['polityscore'])
 
 #subset data to remove rows where any of the variables contain missing data
-data=data[['urbanrate','femaleemployrate','incomeperperson','employrate','polityscore']].dropna()
+data=data[['urbanrate','incomeperperson','employrate','polityscore']].dropna()
 
-# scatterplot for urban rate and female employment
-urbfemfiglinear, urbfemaxlinear = plt.subplots()
-urbfemaxlinear = seaborn.regplot(x="urbanrate", y="femaleemployrate", scatter=True, data=data, ax=urbfemaxlinear)
-urbfemaxlinear.set_xlabel('Urbanization Rate')
-urbfemaxlinear.set_ylabel('Female Employment Rate')
-urbfemaxlinear.set_title('Urbanization Rate and Female Employment Rate (First Order)')
-urbfemfiglinear.savefig('rmp/urbfemfiglinear.png')
+# make a binary categorical for polity score, the response variable
+def POSIPOLI(row):
+    if row['polityscore'] > 0:
+        return 1
+    else:
+        return 0
 
-# second order polynomial fit
-urbfemfigsecond, urbfemaxsecond = plt.subplots()
-urbfemaxsecond = seaborn.regplot(x="urbanrate", y="femaleemployrate", scatter=True, data=data, order=2, ax=urbfemaxsecond)
-urbfemaxsecond.set_xlabel('Urbanization Rate')
-urbfemaxsecond.set_ylabel('Female Employment Rate')
-urbfemaxsecond.set_title('Urbanization Rate and Female Employment Rate (Second Order)')
-urbfemfigsecond.savefig('rmp/urbfemfigsecond.png')
+data['posipoli'] = data.apply(lambda row: POSIPOLI(row), axis=1)
 
-# center the variables
-data['urbanrate_c'] = (data['urbanrate'] - data['urbanrate'].mean())
-data['femaleemployrate_c'] = (data['femaleemployrate'] - data['femaleemployrate'].mean())
+# check the new positive polity score variable
+print('Check positive polity score counts:')
+posipolicheck = data['posipoli'].value_counts(sort=False, dropna=False)
+print (posipolicheck)
+print()
+
+# center quantitative IVs for regression analysis
 data['incomeperperson_c'] = (data['incomeperperson'] - data['incomeperperson'].mean())
 data['employrate_c'] = (data['employrate'] - data['employrate'].mean())
-data['polityscore_c'] = (data['polityscore'] - data['polityscore'].mean())
-
-# do a linear regression analysis
-print('Linear Regression for female employment rate and urbanization rate:')
-reg1 = smf.ols('femaleemployrate ~ urbanrate_c', data=data).fit()
-print(reg1.summary())
-print()
-
-
-# do a multiple regression with femaleemployrate and centered incomeperperson
-print('Multiple regression with urbanrate and incomeperperson:')
-reg2 = smf.ols('femaleemployrate ~ urbanrate_c + incomeperperson_c', data=data).fit()
-print(reg2.summary())
-print()
-
-# do a polynomial regression analysis
-print('Polynomial Regression for female employment rate and urbanization rate:')
-reg3 = smf.ols('femaleemployrate ~ urbanrate_c + I(urbanrate_c**2)', data=data).fit()
-print(reg3.summary())
-print()
-
-# do a polynomial regression analysis adding income per person
-print('Polynomial Regression for female employment rate and urbanization rate with income per person:')
-reg4 = smf.ols('femaleemployrate ~ urbanrate_c + I(urbanrate_c**2) + incomeperperson_c', data=data).fit()
-print(reg4.summary())
-print()
-
-# do a Q-Q plot
-qqfig, qqax = plt.subplots()
-qqfig = sm.qqplot(reg4.resid, line='r')
-qqfig.savefig('rmp/qqfig.png')
-
-# plot the residuals
-residuals = pandas.DataFrame(reg4.resid_pearson)
-residualsfig, residualsax = plt.subplots()
-plt.plot(residuals, 'o', ls='None')
-residualline = plt.axhline(y=0, color='r')
-residualsax.set_ylabel('Standardized Residual')
-residualsax.set_xlabel('Observation Number')
-residualsfig.savefig('rmp/residuals.png')
-
-# do a leverage plot
-levfig = sm.graphics.influence_plot(reg4, size=8)
-levfig.savefig('rmp/levfig.png')
