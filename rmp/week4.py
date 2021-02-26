@@ -105,3 +105,53 @@ print()
 # center quantitative IVs for regression analysis
 data['incomeperperson_c'] = (data['incomeperperson'] - data['incomeperperson'].mean())
 data['employrate_c'] = (data['employrate'] - data['employrate'].mean())
+
+# logistic regression with posipoli
+lreg1 = smf.logit(formula = 'posipoli ~ urbanrate', data = data).fit()
+print (lreg1.summary())
+# odds ratios
+print ("Odds Ratios")
+print (numpy.exp(lreg1.params))
+
+# odd ratios with 95% confidence intervals
+params = lreg1.params
+conf = lreg1.conf_int()
+conf['OR'] = params
+conf.columns = ['Lower CI', 'Upper CI', 'OR']
+print (numpy.exp(conf))
+
+# logistic regression with posipoli and incomeperperson
+lreg2 = smf.logit(formula = 'posipoli ~ urbanrate + incomeperperson', data = data).fit()
+print (lreg2.summary())
+
+# odd ratios with 95% confidence intervals
+params = lreg2.params
+conf = lreg2.conf_int()
+conf['OR'] = params
+conf.columns = ['Lower CI', 'Upper CI', 'OR']
+print (numpy.exp(conf))
+
+# logistic regression with employrate
+lreg3 = smf.logit(formula = 'posipoli ~ employrate', data = data).fit()
+print (lreg3.summary())
+
+# odd ratios with 95% confidence intervals
+print ("Odds Ratios")
+params = lreg3.params
+conf = lreg3.conf_int()
+conf['OR'] = params
+conf.columns = ['Lower CI', 'Upper CI', 'OR']
+print (numpy.exp(conf))
+
+# logistic regression with urbanrate and employrate
+lreg4 = smf.logit(formula = 'posipoli ~ urbanrate + employrate', data = data).fit()
+print (lreg4.summary())
+
+# odd ratios with 95% confidence intervals
+print ("Odds Ratios")
+params = lreg4.params
+conf = lreg4.conf_int()
+conf['OR'] = params
+conf.columns = ['Lower CI', 'Upper CI', 'OR']
+print (numpy.exp(conf))
+
