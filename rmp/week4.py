@@ -107,48 +107,62 @@ data['incomeperperson_c'] = (data['incomeperperson'] - data['incomeperperson'].m
 data['employrate_c'] = (data['employrate'] - data['employrate'].mean())
 
 # logistic regression with posipoli
+print('Logistic regression for positive polity score and urban rate:')
 lreg1 = smf.logit(formula = 'posipoli ~ urbanrate', data = data).fit()
 print (lreg1.summary())
+print()
 # odds ratios
-print ("Odds Ratios")
+print ("Odds Ratios for Positive Polity Score and Urban Rate:")
 print (numpy.exp(lreg1.params))
+print()
 
 # odd ratios with 95% confidence intervals
+print('Odds Ratios for Positive Polity Score and Urban Rate with 95% Confidence Intervals:')
 params = lreg1.params
 conf = lreg1.conf_int()
 conf['OR'] = params
 conf.columns = ['Lower CI', 'Upper CI', 'OR']
 print (numpy.exp(conf))
+print()
 
 # logistic regression with posipoli and incomeperperson
+print('Logistic regression with positive polity, urban rate, and income per person:')
 lreg2 = smf.logit(formula = 'posipoli ~ urbanrate + incomeperperson', data = data).fit()
 print (lreg2.summary())
+print()
 
 # odd ratios with 95% confidence intervals
+print('Odds ratios for positive polity, urban rate, and income per person:')
 params = lreg2.params
 conf = lreg2.conf_int()
 conf['OR'] = params
 conf.columns = ['Lower CI', 'Upper CI', 'OR']
 print (numpy.exp(conf))
+print()
 
 # logistic regression with employrate
+print('Logistic regression with positive polity and employment rate:')
 lreg3 = smf.logit(formula = 'posipoli ~ employrate', data = data).fit()
 print (lreg3.summary())
+print()
 
 # odd ratios with 95% confidence intervals
-print ("Odds Ratios")
+print ("Odds Ratios for positive polity and employment rate:")
 params = lreg3.params
 conf = lreg3.conf_int()
 conf['OR'] = params
 conf.columns = ['Lower CI', 'Upper CI', 'OR']
 print (numpy.exp(conf))
+print()
 
 # logistic regression with urbanrate and employrate
+print('Logistic regression with positive polity, urban rate, and employment rate:')
 lreg4 = smf.logit(formula = 'posipoli ~ urbanrate + employrate', data = data).fit()
 print (lreg4.summary())
+print()
 
 # odd ratios with 95% confidence intervals
-print ("Odds Ratios")
+print ("Odds Ratios for positive polity, urban rate, and employment rate:")
 params = lreg4.params
 conf = lreg4.conf_int()
 conf['OR'] = params
