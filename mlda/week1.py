@@ -41,8 +41,6 @@ from sklearn import tree
 from sklearn.tree import export_graphviz
 import pydotplus
 
-# os.chdir("C:\TREES")
-
 #Load the dataset
 #Set PANDAS to show all columns in DataFrame
 pd.set_option('display.max_columns', None)
@@ -86,10 +84,14 @@ targets = data_clean.highincome
 
 pred_train, pred_test, tar_train, tar_test  =   train_test_split(predictors, targets, test_size=.4)
 
-pred_train.shape
-pred_test.shape
-tar_train.shape
-tar_test.shape
+print('Prediction train shape:')
+print(pred_train.shape)
+print('Prediction test shape')
+print(pred_test.shape)
+print('Target train shape')
+print(tar_train.shape)
+print('Target test shape')
+print(tar_test.shape)
 
 #Build model on training data
 classifier=DecisionTreeClassifier()
@@ -104,21 +106,8 @@ print('Accuracy Score:')
 print(sklearn.metrics.accuracy_score(tar_test, predictions))
 print()
 
-#Displaying the decision tree
-# from sklearn import tree
-# #from StringIO import StringIO
-# from io import StringIO
-# #from StringIO import StringIO 
-# from IPython.display import Image
-# out = StringIO()
-# tree.export_graphviz(classifier, out_file=out)
-# import pydotplus
-# graph=pydotplus.graph_from_dot_data(out.getvalue())
-# Image(graph.create_png())
-# tree.export_graphviz(classifier, out_file='mlda/output.dot')
+# Displaying the decision tree
+
 dot_data = export_graphviz(classifier, out_file=None)
 graph=pydotplus.graph_from_dot_data(dot_data)
 graph.write_png("mlda/decisiontree.png")
-
-
-
