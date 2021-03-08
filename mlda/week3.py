@@ -3,17 +3,17 @@
 MLDA Week 3
 @author: Jonathan Spencer
 
-This week’s assignment
-involves running a lasso regression analysis. Lasso regression analysis 
-is a shrinkage and variable selection method for linear regression models. 
-The goal of lasso regression is to obtain the subset of predictors that 
-minimizes prediction error for a quantitative response variable. The lasso 
-does this by imposing a constraint on the model parameters that causes 
-regression coefficients for some variables to shrink toward zero. Variables 
-with a regression coefficient equal to zero after the shrinkage process are 
-excluded from the model. Variables with non-zero regression coefficients 
-variables are most strongly associated with the response variable. Explanatory 
-variables can be either quantitative, categorical or both. 
+This week’s assignment involves running a lasso regression analysis. 
+Lasso regression analysis is a shrinkage and variable selection method
+for linear regression models. The goal of lasso regression is to obtain 
+the subset of predictors that minimizes prediction error for a quantitative 
+response variable. The lasso does this by imposing a constraint on the 
+model parameters that causes regression coefficients for some variables 
+to shrink toward zero. Variables with a regression coefficient equal to 
+zero after the shrinkage process are excluded from the model. Variables 
+with non-zero regression coefficients variables are most strongly 
+associated with the response variable. Explanatory variables can be either 
+quantitative, categorical or both. 
 
 Your assignment is to run a lasso regression analysis using k-fold cross 
 validation to identify a subset of predictors from a larger pool of predictor 
