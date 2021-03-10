@@ -32,20 +32,12 @@ need to split into training and test data sets. You can provide your rationale
 for not splitting your data set in your written summary.
 """
 
-from pandas import Series, DataFrame
 import pandas as pd
 import numpy as np
-import os
 import matplotlib.pylab as plt
 from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import classification_report
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.ensemble import ExtraTreesClassifier
-import sklearn.metrics
-from sklearn import tree
-from sklearn.tree import export_graphviz
-import pydotplus
+from sklearn.linear_model import LassoLarsCV
+
 
 #Load the dataset
 #Set PANDAS to show all columns in DataFrame
@@ -59,21 +51,10 @@ pd.set_option('display.float_format', lambda x:'%f'%x)
 data = pd.read_csv('dat/gapminder.csv', low_memory=False)
 data = data.replace(r'^\s*$', np.NaN, regex=True)
 
-# For this assignment, we need a binary categorical response variable.  
-# The Gapminder dataset does not have one, so let's make one out of
-# income per person.  Let's also figure out what predictors we'll need
-# and get rid of the observations for which we do not have data across
-# the board.
-data['incomeperperson'] = pd.to_numeric(data['incomeperperson'])
+# Unlike the previous assignments, we do not need to make a binary
+# categorical response variable, but let's stick with income per person.
+
 data_clean = data.dropna()
-
-def HIGHINCOME(row):
-    if row['incomeperperson'] > 25000:
-        return 1
-    else:
-        return 0
-
-data_clean['highincome'] = data_clean.apply(lambda row: HIGHINCOME(row), axis=1)
 
 print('Information about our data:')
 print(data_clean.dtypes)
@@ -84,11 +65,19 @@ print()
 predictor_names = ['co2emissions','femaleemployrate','polityscore',
 'alcconsumption','breastcancerper100th','employrate','hivrate','internetuserate',
 'lifeexpectancy','oilperperson','relectricperperson','suicideper100th','urbanrate']
-predictors = data_clean[predictor_names]
+predvar = data_clean[predictor_names]
 
-targets = data_clean.highincome
+target = data_clean.incomeperperson
 
-pred_train, pred_test, tar_train, tar_test  =   train_test_split(predictors, targets, test_size=.4)
+# standardize predictors to have mean=0 and sd=1
+predictors=predvar.copy()
+from sklearn import preprocessing
+for n in predictor_names:
+    predictors[str(n)]=preprocessing.scale(predictors[str(n)].astype('float64'))
+
+# split data into train and test sets
+pred_train, pred_test, tar_train, tar_test = train_test_split(predictors, target, 
+                                                              test_size=.3, random_state=123)
 
 print('Prediction train shape:')
 print(pred_train.shape)
@@ -99,23 +88,49 @@ print(tar_train.shape)
 print('Target test shape')
 print(tar_test.shape)
 
-#Build model on training data
-classifier=RandomForestClassifier(n_estimators=25)
-classifier=classifier.fit(pred_train,tar_train)
+# specify the lasso regression model
+model=LassoLarsCV(cv=10, precompute=False).fit(pred_train,tar_train)
 
-predictions=classifier.predict(pred_test)
+# print variable names and regression coefficients
+dict(zip(predictors.columns, model.coef_))
 
-print('Confusion Matrix:')
-print(sklearn.metrics.confusion_matrix(tar_test,predictions))
-print()
-print('Accuracy Score:')
-print(sklearn.metrics.accuracy_score(tar_test, predictions))
-print()
+# plot coefficient progression
+m_log_alphas = -np.log10(model.alphas_)
+ax = plt.gca()
+plt.plot(m_log_alphas, model.coef_path_.T)
+plt.axvline(-np.log10(model.alpha_), linestyle='--', color='k',
+            label='alpha CV')
+plt.ylabel('Regression Coefficients')
+plt.xlabel('-log(alpha)')
+plt.title('Regression Coefficients Progression for Lasso Paths')
 
-# fit an Extra Trees model to the data
-model = ExtraTreesClassifier()
-model.fit(pred_train,tar_train)
-# display the relative importance of each attribute
-print('Feature Importances')
-for p, i in zip(predictors.columns, model.feature_importances_):
-    print(p + ': ' + str(i))
+# plot mean square error for each fold
+m_log_alphascv = -np.log10(model.cv_alphas_)
+plt.figure()
+plt.plot(m_log_alphascv, model.mse_path_, ':')
+plt.plot(m_log_alphascv, model.mse_path_.mean(axis=-1), 'k',
+         label='Average across the folds', linewidth=2)
+plt.axvline(-np.log10(model.alpha_), linestyle='--', color='k',
+            label='alpha CV')
+plt.legend()
+plt.xlabel('-log(alpha)')
+plt.ylabel('Mean squared error')
+plt.title('Mean squared error on each fold')
+         
+
+# MSE from training and test data
+from sklearn.metrics import mean_squared_error
+train_error = mean_squared_error(tar_train, model.predict(pred_train))
+test_error = mean_squared_error(tar_test, model.predict(pred_test))
+print ('training data MSE')
+print(train_error)
+print ('test data MSE')
+print(test_error)
+
+# R-square from training and test data
+rsquared_train=model.score(pred_train,tar_train)
+rsquared_test=model.score(pred_test,tar_test)
+print ('training data R-square')
+print(rsquared_train)
+print ('test data R-square')
+print(rsquared_test)
