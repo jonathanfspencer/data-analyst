@@ -87,12 +87,16 @@ print('Target train shape')
 print(tar_train.shape)
 print('Target test shape')
 print(tar_test.shape)
+print()
 
 # specify the lasso regression model
 model=LassoLarsCV(cv=10, precompute=False).fit(pred_train,tar_train)
 
 # print variable names and regression coefficients
-dict(zip(predictors.columns, model.coef_))
+print('Variables and regression coefficients:')
+for vars in zip(predictors.columns, model.coef_):
+    print(vars)
+print()
 
 # plot coefficient progression
 m_log_alphas = -np.log10(model.alphas_)
@@ -103,6 +107,7 @@ plt.axvline(-np.log10(model.alpha_), linestyle='--', color='k',
 plt.ylabel('Regression Coefficients')
 plt.xlabel('-log(alpha)')
 plt.title('Regression Coefficients Progression for Lasso Paths')
+plt.savefig('mlda/lasso.png')
 
 # plot mean square error for each fold
 m_log_alphascv = -np.log10(model.cv_alphas_)
@@ -116,6 +121,7 @@ plt.legend()
 plt.xlabel('-log(alpha)')
 plt.ylabel('Mean squared error')
 plt.title('Mean squared error on each fold')
+plt.savefig('mlda/mse.png')
          
 
 # MSE from training and test data
