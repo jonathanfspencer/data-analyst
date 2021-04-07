@@ -36,7 +36,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pylab as plt
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LassoLarsCV
+from sklearn import preprocessing
+from sklearn.cluster import KMeans
 
 
 #Load the dataset
@@ -99,6 +100,7 @@ plt.plot(clusters, meandist)
 plt.xlabel('Number of clusters')
 plt.ylabel('Average distance')
 plt.title('Selecting k with the Elbow Method')
+plt.show()
 
 # Interpret 3 cluster solution
 model3=KMeans(n_clusters=3)
@@ -130,7 +132,7 @@ labels=list(model3.labels_)
 newlist=dict(zip(cluslist, labels))
 newlist
 # convert newlist dictionary to a dataframe
-newclus=DataFrame.from_dict(newlist, orient='index')
+newclus=pd.DataFrame.from_dict(newlist, orient='index')
 newclus
 # rename the cluster assignment column
 newclus.columns = ['cluster']
@@ -143,7 +145,8 @@ newclus.reset_index(level=0, inplace=True)
 # merge the cluster assignment dataframe with the cluster training variable dataframe
 # by the index variable
 merged_train=pd.merge(clus_train, newclus, on='index')
-merged_train.head(n=100)
+print('merged training data:')
+print(merged_train.head(n=100))
 # cluster frequencies
 merged_train.cluster.value_counts()
 
@@ -159,26 +162,43 @@ print(clustergrp)
 # validate clusters in training data by examining cluster differences in income using ANOVA
 # first have to merge income with clustering variables and cluster assignment data 
 income_data=data_clean['incomeperperson']
+print('Just income data:')
+print(income_data)
+print()
 # split income data into train and test sets
 income_train, income_test = train_test_split(income_data, test_size=.3, random_state=123)
 income_train1=pd.DataFrame(income_train)
 income_train1.reset_index(level=0, inplace=True)
-merged_train_all=pd.merge(income_train1, merged_train, on='index')
+print('income train 1:')
+print(income_train1)
+# merged_train_all=pd.merge(income_train1, merged_train, on='index')
+merged_train_all=income_train1.join(merged_train.set_index('index'), on='index')
+print('merged train all after merge:')
+print(merged_train_all)
+#columns = ['incomeperperson', 'cluster']
+#merged_train_all=merged_train_all.reindex(columns=columns)
+#print('merged train all after reindex:')
+#print(merged_train_all)
 sub1 = merged_train_all[['incomeperperson', 'cluster']].dropna()
+print('data before OLS:')
+print(sub1)
 
 import statsmodels.formula.api as smf
 import statsmodels.stats.multicomp as multi 
 
 incomemod = smf.ols(formula='incomeperperson ~ C(cluster)', data=sub1).fit()
 print (incomemod.summary())
+print()
 
 print ('means for income by cluster')
 m1= sub1.groupby('cluster').mean()
 print (m1)
+print()
 
 print ('standard deviations for income by cluster')
 m2= sub1.groupby('cluster').std()
 print (m2)
+print()
 
 mc1 = multi.MultiComparison(sub1['incomeperperson'], sub1['cluster'])
 res1 = mc1.tukeyhsd()
