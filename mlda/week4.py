@@ -100,7 +100,7 @@ plt.plot(clusters, meandist)
 plt.xlabel('Number of clusters')
 plt.ylabel('Average distance')
 plt.title('Selecting k with the Elbow Method')
-# plt.show()
+plt.show()
 
 # Interpret 3 cluster solution
 model3=KMeans(n_clusters=3)
@@ -115,7 +115,7 @@ plt.scatter(x=plot_columns[:,0], y=plot_columns[:,1], c=model3.labels_,)
 plt.xlabel('Canonical variable 1')
 plt.ylabel('Canonical variable 2')
 plt.title('Scatterplot of Canonical Variables for 3 Clusters')
-# plt.show()
+plt.show()
 
 # BEGIN multiple steps to merge cluster assignment with clustering variables to examine
 # cluster variable means by cluster
@@ -162,28 +162,14 @@ print(clustergrp)
 # validate clusters in training data by examining cluster differences in income using ANOVA
 # first have to merge income with clustering variables and cluster assignment data 
 income_data=data_clean['incomeperperson']
-print('Just income data:')
-print(income_data)
-print()
+
 # split income data into train and test sets
 income_train, income_test = train_test_split(income_data, test_size=.3, random_state=123)
 income_train1=pd.DataFrame(income_train)
 income_train1.reset_index(level=0, inplace=True)
 income_train1.reindex_like(merged_train)
-#income_train1 = income_train1.set_index('index')
-print('income train 1:')
-print(income_train1)
 merged_train_all=pd.merge(income_train1, merged_train, on='index')
-# merged_train_all=income_train1.join(merged_train.set_index('index'), on='index')
-print('merged train all after merge:')
-print(merged_train_all)
-#columns = ['incomeperperson', 'cluster']
-#merged_train_all=merged_train_all.reindex(columns=columns)
-#print('merged train all after reindex:')
-#print(merged_train_all)
 sub1 = merged_train_all[['incomeperperson_x', 'cluster']].dropna()
-print('data before OLS:')
-print(sub1)
 
 import statsmodels.formula.api as smf
 import statsmodels.stats.multicomp as multi 
